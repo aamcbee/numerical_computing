@@ -4,13 +4,13 @@
 \label{lab:ImgSeg_eigenvalues}
 
 \section*{Graph Theory}
-\begin{figure}[h]
+\begin{figure}
 \includegraphics[width=\textwidth/3]{graphExample}
 \caption{A simple undirected graph}
 \label{fig:example_graph}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}
  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.5cm,
  thick,main node/.style={circle,draw}]
 
@@ -307,12 +307,12 @@ Let $r=5.0$, $\sigma_I^2=0.02$ and $\sigma_d^2=3.0$.
 %Notice that for each pixel you can save time by only checking the pixels $r$ rows and columns away.
 %For that you'll have to handle the pixels on the edges and corners of the image carefully.
 %I gave them new helper code, which abstracts away the edge cases.
-\label{prob4}
+\label{prob:adjacency_dream}
 \end{problem}
 
 As was mentioned before, we are trying to minimize the `cut', or the total weight of the edges we remove to create segments. This problem comes down to finding the second smallest eigenvalue of $D^{-1/2}QD^{-1/2}$, where $D$ is the degree matrix and $Q$ is the Laplacian matrix of the adjacency matrix defined in \eqref{eq:adjacency}. The mathematics behind this is quite involved, so the reader is encouraged to read the paper that Shi and Malik wrote at \url{http://www.cs.berkeley.edu/~malik/papers/SM-ncut.pdf} for a better understanding.
 	
-To calculate $D^{-1/2}QD^{-1/2}$, we once again use sparse matrices. We use the \li{adjacency} function from Problem \ref{prob4} to find the adjacency matrix \li{W} and the main diagonal of the degree matrix \li{D}. We can convert \li{D} into a diagonal sparse matrix using \li{spar.spdiags}.
+To calculate $D^{-1/2}QD^{-1/2}$, we once again use sparse matrices. We use the \li{adjacency} function from Problem \ref{prob:adjacency_dream} to find the adjacency matrix \li{W} and the main diagonal of the degree matrix \li{D}. We can convert \li{D} into a diagonal sparse matrix using \li{spar.spdiags}.
 
 \begin{lstlisting}
 Ds = spar.spdiags(D, 0, D.shape[1], D.shape[1], format = 'csc')
