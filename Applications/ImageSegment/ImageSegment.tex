@@ -193,8 +193,19 @@ Then use masking to change the sparsity of each of the matrices, i.e. \li{numpy.
 \section*{Image Segmentation}
 
 \begin{figure}
-\centering
-\includegraphics[width=\textwidth]{monuments.png}
+    \centering
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{RegMon.png}
+    \end{subfigure}
+   \hspace*{\fill}
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{NegMon.png}
+    \end{subfigure}
+    \hspace*{\fill}
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{PosMon.png}
+    \end{subfigure}
+    
 \caption{An image and its segments.}
 \label{fig:monument}
 \end{figure}
@@ -348,7 +359,18 @@ Test your function on the image \li{dream.png}. Your segments should look like t
 
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{dream_solution.png}
+    \centering
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{RegDream.png}
+    \end{subfigure}
+    \hspace*{\fill}
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{NegDream.png}
+    \end{subfigure}
+    \hspace*{\fill}
+    \begin{subfigure}{0.31\textwidth}
+        \includegraphics[width=\textwidth]{PosDream.png}
+    \end{subfigure}
 \caption{Segments of \li{dream.png}}
 \label{fig:dream_solution}
 \end{figure}
