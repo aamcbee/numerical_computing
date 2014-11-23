@@ -35,27 +35,27 @@ In python we can read in a \texttt{.wav} by importing wavfile from scipy.io and 
 \begin{lstlisting}
 import scipy as sp
 from scipy.io import wavfile
-from matplotlib import pyplot as plt 
+from matplotlib import pyplot as plt
 
 rate, mywave = wavfile.read('pulseramp.wav')
 \end{lstlisting}
-Here \texttt{mywave} is the signal and \texttt{rate} is the sampling rate of the audio measured in Hz (samples per second). 
+Here \texttt{mywave} is the signal and \texttt{rate} is the sampling rate of the audio measured in Hz (samples per second).
 %  We can check the sampling rate and the size of the signal:
 % \begin{lstlisting}
 % rate
 % Out[2]: 44100
-% 
+%
 % mywave.shape
 % Out[3]: (300000,)
 % \end{lstlisting}
 We find that \texttt{mywave} is a vector of length $300000$.
-It has only one column because this is a mono (single-channel) \texttt{.wav} file. 
+It has only one column because this is a mono (single-channel) \texttt{.wav} file.
 If we had used a stereo \texttt{.wav} file, then mywave would have been a matrix with two columns, one for the left channel and one for the right.
 
-The entries of \texttt{mywave} are integers between $-32767$ and $+32767$ which represent the relative air pressure at a particular instant, sampled at regular intervals (these bounds are the range of 16-bit integers).   
-In our case, the \texttt{.wav} file is sampled at 44.1KHz (the standard sample-rate for high-quality audio), so there are 44100 samples per second. 
-$+32767$ represents the maximum possible increase in air pressure which the speaker can produce (at its current volume level), while $-32767$ represents the maximum possible decrease in air pressure. 
-In the case of our particular \texttt{.wav} file, you can check that most of the entries of \texttt{mywave} are $0$, indicating neutral pressure. 
+The entries of \texttt{mywave} are integers between $-32767$ and $+32767$ which represent the relative air pressure at a particular instant, sampled at regular intervals (these bounds are the range of 16-bit integers).
+In our case, the \texttt{.wav} file is sampled at 44.1KHz (the standard sample-rate for high-quality audio), so there are 44100 samples per second.
+$+32767$ represents the maximum possible increase in air pressure which the speaker can produce (at its current volume level), while $-32767$ represents the maximum possible decrease in air pressure.
+In the case of our particular \texttt{.wav} file, you can check that most of the entries of \texttt{mywave} are $0$, indicating neutral pressure.
 Only occasionally you will find an entry which is $+32767$, which is where a pulse occurs.
 We can see this most easily if we plot the waveform of our sound (see Figure \ref{pulseramp}):
 \begin{lstlisting}
@@ -64,27 +64,31 @@ plt.show()
 \end{lstlisting}
 \begin{figure}[ht]\caption{A sequence of pulses of increasing frequency}\label{pulseramp}\centering\includegraphics[width=\textwidth]{pulseramp}\end{figure}
 
-We should keep in mind that the deviations in air pressure that we hear as sound are extremely small relative to atmospheric pressure. 
+We should keep in mind that the deviations in air pressure that we hear as sound are extremely small relative to atmospheric pressure.
 In normal conversation the deviation in air pressure reaching your ears might be around $.01$ pascals, about one ten-millionth of atmospheric pressure.
 
 
 \section*{Using the Fourier Transform to Investigate the Spectrum of a Signal}
 
-In many ways the most basic kind of sound is one whose waveform is a sinusoid (that is, a scaled, shifted version of the sine function). 
-To the ear, the tone of a sinusoid is more mellow than any other sound of the same pitch. 
+In many ways the most basic kind of sound is one whose waveform is a sinusoid (that is, a scaled, shifted version of the sine function).
+To the ear, the tone of a sinusoid is more mellow than any other sound of the same pitch.
 Mathematically sinusoids are important because Fourier series provide a way of expressing any periodic, piecewise continuous function as a sum of sine and cosine waves of various frequencies and amplitudes, or, more conveniently, using complex exponential functions.
 
 Here's one way of producing a 1760Hz sine wave (which in musical terms is A6, the A between two and three octaves above middle C):
 % import scipy as sp
 % from scipy.io import wavfile
-% 
+%
 \begin{lstlisting}
-samplerate = 44100 # 44100 samples per second
-freq = 1760 # We're going to produce a 1760 Hz sine wave ...
-length = 2 # ... which will last for 2 seconds.
-stepsize = freq * 2 * sp.pi/samplerate
-sig = sp.sin(sp.arange(0, stepsize*length*samplerate, stepsize))
-scaled = sp.int16(sig/sp.absolute(sig).max() * 32767)
+import numpy as np
+# Number of samples per second
+samplerate = 44100 
+# We're going to produce a 1760 Hz sine wave.
+freq = 1760 
+# This wave will last for 2 seconds.
+length = 2 
+stepsize = freq * 2 * np.pi / samplerate
+sig = np.sin(np.arange(0, stepsize * length * samplerate, stepsize))
+scaled = sp.int16(sig / sp.absolute(sig).max() * 32767)
 wavfile.write('sinusound.wav', samplerate, scaled)
 \end{lstlisting}
 
@@ -99,9 +103,9 @@ Is it audible?
 \end{problem}
 
 
-For a discrete signal, we are given a finite number of evenly spaced data points along the $x$-axis; we can think of such a signal as a function $f$ whose domain consists of the integers $\{0,1,\dots,N-1\}$, where $N$ is the number of data points. 
-For convenience, we will often extend $f$ to be a periodic function with period $N$, defined on all integers, by requiring $f(a+bN)=f(a)$ for all integers $a$ and $b$. 
-How might we find something analagous to a Fourier series for such a function? 
+For a discrete signal, we are given a finite number of evenly spaced data points along the $x$-axis; we can think of such a signal as a function $f$ whose domain consists of the integers $\{0,1,\dots,N-1\}$, where $N$ is the number of data points.
+For convenience, we will often extend $f$ to be a periodic function with period $N$, defined on all integers, by requiring $f(a+bN)=f(a)$ for all integers $a$ and $b$.
+How might we find something analogous to a Fourier series for such a function?
 Well, it turns out that the functions $e^{\frac{2\pi ikx}N}$, which are periodic with period $N$, form an orthonormal set with respect to the inner product
 \[
 \langle f,g\rangle = \frac1N\sum_{k=0}^{N-1}\overline{f(k)}g(k).
@@ -112,12 +116,13 @@ In other words, any function $f$ whose domain consists of the integers $\{0,1,\d
 \[
 f(x)=\sum_{k=0}^{N-1}c_ke^{\frac{2\pi ikx}N}.
 \]
-The vector of coefficients $(c_0,c_1,\dots,c_{N-1})$ is called the DFT of $f$. These coefficients may be computed by taking the inner product of each basis function with $f$:
+The vector of coefficients $(c_0,c_1,\dots,c_{N-1})$ is called the DFT of $f$.
+These coefficients may be computed by taking the inner product of each basis function with $f$:
 \begin{align}
 	c_k=\langle e^{\frac{2\pi ikx}N}, f(x)\rangle=\frac1N\sum_{n=0}^{N-1}e^{\frac{-2\pi ink}N}f(n) . \label{transform_coefficients}
 \end{align}
 
-Scipy contains a module called \texttt{fft} which can compute the DFT of a signal. %(\texttt{fft} stands for Fast Fourier Transform.) 
+Scipy contains a module called \texttt{fft} which can compute the DFT of a signal. %(\texttt{fft} stands for Fast Fourier Transform.)
 For example, take the sine wave signal \texttt{sig} created above and run
 \begin{lstlisting}
 from scipy import fft
@@ -131,32 +136,32 @@ Why are there two spikes when there is only one tone?
 The answer is that for a real-valued signal, the right half of the DFT is always a mirror-image duplicate of the left half -- or, more precisely, each entry in the right half of the DFT is the complex conjugate of the corresponding entry in the left half.
 Thus the right half of the DFT gives us no new information.
 (To be completely accurate in describing this mirror-image symmetry, we must ignore the very first entry of the DFT.)
-% 
+%
 % In saying that the right half of the DFT is a complex-conjugate mirror-image of the left half, to be perfectly correct we actually need to ignore the very first entry of the DFT.
 
 
 \begin{problem}
-Implement a function to compute the DFT of a vector by using \eqref{transform_coefficients}. % the definition of the DFT. 
-Test it on several random vectors and make sure the results match those of scipy's \texttt{fft}.  
+Implement a function to compute the DFT of a vector by using \eqref{transform_coefficients}. % the definition of the DFT.
+Test it on several random vectors and make sure the results match those of scipy's \texttt{fft}.
 Note that the scaling scipy uses does not divide by $N$, so be sure to account for that in comparing your results.
 \end{problem}
 
-The naive way of computing the DFT has $O(N^2)$ runtime.   
-There is a very important algorithm which computes the DFT with a $O(N \log N)$ runtime, called the \emph{fast Fourier transform}. 
-The fast Fourier transform (FFT) accomplishes this speedup by recursively breaking up the original array into smaller pieces, finding the Fourier transform of those smaller pieces, and carefully recombining to get the Fourier transform of the original array.  
+The naive way of computing the DFT has $O(N^2)$ runtime.
+There is a very important algorithm which computes the DFT with a $O(N \log N)$ runtime, called the \emph{fast Fourier transform}.
+The fast Fourier transform (FFT) accomplishes this speedup by recursively breaking up the original array into smaller pieces, finding the Fourier transform of those smaller pieces, and carefully recombining to get the Fourier transform of the original array.
 While scipy uses the FFT algorithm, its implementation at the time of this writing is somewhat slow.
 
-There is a $C$ library that computes the FFT called FFTW (Fastest Fourier Transform in the West).  
-A python package called ``pyFFTW'' wraps FFTW and is available for download. 
-pyFFTW  has an interface to FFTW called scipy\_fftpack that acts exactly like scipy's fft, and is substantially faster than scipy's implementation when processing larger arrays. 
+There is a $C$ library that computes the FFT called FFTW (Fastest Fourier Transform in the West).
+A python package called ``pyFFTW'' wraps FFTW and is available for download.
+pyFFTW  has an interface to FFTW called scipy\_fftpack that acts exactly like scipy's fft, and is substantially faster than scipy's implementation when processing larger arrays.
 
 
 \begin{figure}[ht]\caption{DFT of a sine wave}\label{sinespec}\centering\includegraphics[width=\textwidth]{sinespec}\end{figure}
 
-Now let's look at a more complicated signal. Play the file \texttt{tada.wav}.  
-If you read \texttt{tada.wav} into python you will find it has two columns.  
-That is because it is a stereo recording; the two columns correspond to two audio signals (left and right).  
-pyFFTW by default takes the Fourier transform along the last axis.  We override this by setting axis=0. 
+Now let's look at a more complicated signal. Play the file \texttt{tada.wav}.
+If you read \texttt{tada.wav} into python you will find it has two columns.
+That is because it is a stereo recording; the two columns correspond to two audio signals (left and right).
+pyFFTW by default takes the Fourier transform along the last axis.  We override this by setting axis=0.
 
 The following code computes the discrete Fourier transform of \texttt{tada.wav} and graphs its absolute values (see Figure \ref{tadaspec}).
 % import scipy as sp
@@ -165,11 +170,9 @@ The following code computes the discrete Fourier transform of \texttt{tada.wav} 
 from pyfftw.interfaces import scipy_fftpack as fftw
 rate, sig = wavfile.read('tada.wav')
 sig = sp.float32(sig)
-fsig = fftw.fft(sig,axis=0)
-plt.figure()
-plt.plot(sp.absolute(fsig))
+fsig = fftw.fft(sig, axis=0)
+plt.plot(np.absolute(fsig))
 plt.show()
-plt.close()
 \end{lstlisting}
 
 
@@ -189,17 +192,17 @@ In instruments with a mellow tone (such as a flute or vibraphone) the overtones 
 In the DFT of \texttt{tada.wav}, you will notice spikes at about 2030, 4060, 6090, 8120, 10160, 12190, 14220, 16250, 18280, and 20320 units.
 These are approximately integer multiples of 2030 and represent overtones of a single musical note whose fundamental frequency is about 2030 units.
 
-So what are these units and how can we express them in Hz? 
-A frequency of 2030 units in the DFT means that the tone undergoes 2030 cycles through the extent of the entire recording. 
+So what are these units and how can we express them in Hz?
+A frequency of 2030 units in the DFT means that the tone undergoes 2030 cycles through the extent of the entire recording.
 % We use check the shape of \texttt{sig} to find the total number of samples in the recording:
 % \begin{verbatim}
 % sig.shape
 % Out[27]: (42752, 2)
 % \end{verbatim}
-% So the entire recording is 42752 samples long (in each channel -- this is a stereo recording.) 
+% So the entire recording is 42752 samples long (in each channel -- this is a stereo recording.)
 Since \texttt{sig.shape}$\, = (42752, 2)$, we see that the entire recording is 42752 samples long in 2 channels (this is a stereo recording).
 The sample rate is 22050 samples per second.
-(You could find this out, for instance, by looking at the rate value assigned by \texttt{wavfile.read}). 
+(You could find this out, for instance, by looking at the rate value assigned by \texttt{wavfile.read}).
 Thus, 2030 cycles through the entire recording is equivalent to
 $$\frac{2030\text{ cycles}}{42752\text{ samples}} \times \frac{22050\text{ samples}}{\text{sec}} \approx 1047 \text{ Hz}.$$
 This tone is at 1047 Hz, which in musical terms is a (concert) C6, the C two octaves above middle C.
@@ -207,7 +210,7 @@ There are also other, lower musical notes in the recording which each have their
 
 \begin{problem}
 Listen to \texttt{pianoclip.wav}.
-Identify the audible frequency of greatest amplitude (Ignore the 0 frequency found in the first entry). 
+Identify the audible frequency of greatest amplitude (Ignore the 0 frequency found in the first entry).
 What musical note does the fundamental frequency correspond to?
 (For this, you may wish to use the table on http://en.wikipedia.org/wiki/Piano\_key\_frequencies)
 \end{problem}
@@ -287,14 +290,14 @@ Well -- \emph{almost} that simple. Actually, when we say we're cutting out a set
 \begin{lstlisting}
 old_rate = 44100
 new_rate = 22050
-in_sig = sp.float32(in_sig)
+in_sig = np.float32(in_sig)
 fin = fftw.fft(in_sig)
-nsiz = sp.floor(in_sig.size * new_rate / old_rate)
-nsizh = sp.floor(nsiz / 2)
-fout = sp.zeros(nsiz)
+nsiz = np.floor(in_sig.size * new_rate / old_rate)
+nsizh = np.floor(nsiz / 2)
+fout = np.zeros(nsiz)
 fout = fout + 0j
 fout[0:nsizh] = fin[0:nsizh]
-fout[nsiz-nsizh+1:] = sp.conj(sp.flipud(fout[1:nsizh]))
+fout[nsiz-nsizh+1:] = np.conj(np.flipud(fout[1:nsizh]))
 out = fftw.ifft(fout)
 \end{lstlisting}
 There are just a couple minor problems we need to deal with before we're finished.
